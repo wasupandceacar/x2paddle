@@ -342,6 +342,23 @@ def prim_getitem(layer,
     forward_func.extend(gen_codes([line], indent=indent))
 
 
+def prim_setitem(layer,
+                 indent=1,
+                 init_func=[],
+                 forward_func=[],
+                 layer_id=None,
+                 different_attrs=None):
+    line = "{}[{}] = paddle.full_like({}[{}], {})".format(get_value(layer, "list", different_attrs),
+                                get_value(layer, "index", different_attrs),
+                                get_value(layer, "list", different_attrs),
+                                get_value(layer, "index", different_attrs),
+                                get_value(layer, "result", different_attrs))
+    forward_func.extend(gen_codes([line], indent=indent))
+    line = "{} = {}".format(layer.outputs[0],
+                                get_value(layer, "list", different_attrs))
+    forward_func.extend(gen_codes([line], indent=indent))
+
+
 def prim_gt(layer,
             indent=1,
             init_func=[],

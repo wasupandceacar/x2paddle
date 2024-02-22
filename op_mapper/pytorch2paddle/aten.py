@@ -3104,6 +3104,35 @@ def aten_index(mapper, graph, node):
     return current_inputs, current_outputs
 
 
+def aten_index_put(mapper, graph, node):
+    scope_name = mapper.normalize_scope_name(node)
+    output_name = mapper._get_outputs_name(node)[0]
+    layer_outputs = [output_name]
+    layer_inputs = {}
+    inputs_name, inputs_node = mapper._get_inputs_name(node)
+    current_outputs = [output_name]
+    mapper._check_input(graph, inputs_node[0], inputs_name[0], current_outputs,
+                        scope_name)
+    layer_inputs["x"] = inputs_name[0]
+    mapper._check_input(graph, inputs_node[1], inputs_name[1], current_outputs,
+                        scope_name)
+    layer_inputs["index"] = inputs_name[1]
+    mapper._check_input(graph, inputs_node[2], inputs_name[2], current_outputs,
+                        scope_name)
+    layer_inputs["y"] = inputs_name[2]
+
+    current_inputs = list(layer_inputs.values())
+
+    graph.add_layer(
+        "prim.setitem",
+        inputs={"list": layer_inputs["x"],
+                "result": layer_inputs["y"]},
+        outputs=layer_outputs,
+        scope_name=scope_name,
+        index=layer_inputs["index"])
+    return current_inputs, current_outputs
+
+
 def aten_imag(mapper, graph, node):
     """ 构造获取绝对值的PaddleLayer。
     TorchScript示例:
